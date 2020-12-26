@@ -86,8 +86,8 @@ int main( int argc, char *argv[] ){
     printf("n_pixels: %d\n", n_pixels);
     printf("n_pixels/32: %d\n", n_pixels/32);
     
-    //for(int pixel_index = 0; pixel_index < n_pixels/32; pixel_index++){
-    for(int pixel_index = 0; pixel_index < 1; pixel_index++){
+    for(int pixel_index = 0; pixel_index < n_pixels/32; pixel_index++){
+    //for(int pixel_index = 0; pixel_index < 1; pixel_index++){
 
         unsigned char r[32] __attribute__((aligned(32))) = { image_data_in[pixel_index*96], image_data_in[pixel_index*96+3], image_data_in[pixel_index*96+6],
                                 image_data_in[pixel_index*96+9], image_data_in[pixel_index*96+12],image_data_in[pixel_index*96+15],
@@ -161,26 +161,36 @@ int main( int argc, char *argv[] ){
         g_avx = _mm256_mul_ps(g_avx, g_percentage);
         b_avx = _mm256_mul_ps(b_avx, b_percentage);*/
 
-        __m256i_u gray_avx = _mm256_adds_epu8(r_avx, g_avx);
-        gray_avx = _mm256_adds_epu8(gray_avx, b_avx);
+        __m256i_u gray_avx = _mm256_add_epi8(r_avx, g_avx);
+        gray_avx = _mm256_add_epi8(gray_avx, b_avx);
 
         //unsigned char gray_avx_c[8];
+        unsigned char *red_avx_c = (unsigned char *) &r_avx;
+        unsigned char *green_avx_c = (unsigned char *) &g_avx;
+        unsigned char *blue_avx_c = (unsigned char *) &b_avx;
+        unsigned char *gray_avx_c = (unsigned char *) &gray_avx;
+
 
 
         for(int i=0; i<32; i++){
-            memset(image_data_out+(pixel_index*96)+i*3,  gray_avx[i], 3);
+            memset(image_data_out+(pixel_index*96)+i*3,  gray_avx_c[i], 3);
+            
+            /*
             unsigned char gray = image_data_in[pixel_index*96+i*3]+image_data_in[pixel_index*96+i*3+1]+image_data_in[pixel_index*96+i*3+2];
             
             printf("gray: %d\n", gray);
             printf("red[%d]:%d\n", i, image_data_in[pixel_index*96+i*3]);
+            printf("green[%d]:%d\n", i, image_data_in[pixel_index*96+i*3+1]);
+            printf("blue[%d]:%d\n", i, image_data_in[pixel_index*96+i*3+2]);
 
-            unsigned char gray_avx_c = gray_avx[i];
-            unsigned char red_avx_c = r_avx[i];
-            printf("gray_avx: %d\n", gray_avx_c);
-            printf("red_avx[%d]:%d\n", i, red_avx_c);
+            printf("gray_avx: %d\n", gray_avx_c[i]);
+            printf("red_avx[%d]:%d\n", i, red_avx_c[i]);
+            printf("green_avx[%d]:%d\n", i, green_avx_c[i]);
+            printf("blue_avx[%d]:%d\n", i, blue_avx_c[i]);
 
-            printf("\n\n");
 
+            printf("\n");
+            */
         }
         /*
         memset(image_data_out+(pixel_index*24),  gray_avx[0], 3);
