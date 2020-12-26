@@ -1,2 +1,3 @@
 *.o
 *_gray.bmp
+mem_grayscale_converter

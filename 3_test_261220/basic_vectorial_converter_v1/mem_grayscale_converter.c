@@ -86,8 +86,8 @@ int main( int argc, char *argv[] ){
     printf("n_pixels: %d\n", n_pixels);
     printf("n_pixels/8: %d\n", n_pixels/32);
     
-    //for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
-    for(int pixel_index = 0; pixel_index < 2; pixel_index++){
+    for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
+    //for(int pixel_index = 0; pixel_index < 2; pixel_index++){
 
         /*unsigned char r[32] __attribute__((aligned(32))) = { image_data_in[pixel_index], image_data_in[pixel_index+3], image_data_in[pixel_index+6],
                                 image_data_in[pixel_index+9], image_data_in[pixel_index+12],image_data_in[pixel_index+15],
@@ -110,19 +110,19 @@ int main( int argc, char *argv[] ){
                                 image_data_in[pixel_index+45]
         };*/
 
-        float r[8] __attribute__((aligned(32))) = { image_data_in[pixel_index], image_data_in[pixel_index+3], image_data_in[pixel_index+6],
-                                image_data_in[pixel_index+9], image_data_in[pixel_index+12],image_data_in[pixel_index+15],
-                                image_data_in[pixel_index+18], image_data_in[pixel_index+21]
+        float r[8] __attribute__((aligned(32))) = { image_data_in[pixel_index*24], image_data_in[pixel_index*24+3], image_data_in[pixel_index*24+6],
+                                image_data_in[pixel_index*24+9], image_data_in[pixel_index*24+12],image_data_in[pixel_index*24+15],
+                                image_data_in[pixel_index*24+18], image_data_in[pixel_index*24+21]
         };
 
-        float g[8] __attribute__((aligned(32))) = { image_data_in[pixel_index+1], image_data_in[pixel_index+4], image_data_in[pixel_index+7],
-                                image_data_in[pixel_index+10], image_data_in[pixel_index+13],image_data_in[pixel_index+16],
-                                image_data_in[pixel_index+19], image_data_in[pixel_index+22]
+        float g[8] __attribute__((aligned(32))) = { image_data_in[pixel_index*24+1], image_data_in[pixel_index*24+4], image_data_in[pixel_index*24+7],
+                                image_data_in[pixel_index*24+10], image_data_in[pixel_index*24+13],image_data_in[pixel_index*24+16],
+                                image_data_in[pixel_index*24+19], image_data_in[pixel_index*24+22]
         };
 
-        float b[8] __attribute__((aligned(32))) = { image_data_in[pixel_index+2], image_data_in[pixel_index+5], image_data_in[pixel_index+8],
-                                image_data_in[pixel_index+11], image_data_in[pixel_index+14],image_data_in[pixel_index+17],
-                                image_data_in[pixel_index+20], image_data_in[pixel_index+23]
+        float b[8] __attribute__((aligned(32))) = { image_data_in[pixel_index*24+2], image_data_in[pixel_index*24+5], image_data_in[pixel_index*24+8],
+                                image_data_in[pixel_index*24+11], image_data_in[pixel_index*24+14],image_data_in[pixel_index*24+17],
+                                image_data_in[pixel_index*24+20], image_data_in[pixel_index*24+23]
         };
         
         //printf("r:\n %d %d %d %d\n", image_data_in[pixel_index], image_data_in[pixel_index+1], image_data_in[pixel_index+2], image_data_in[pixel_index+3]);
@@ -132,23 +132,33 @@ int main( int argc, char *argv[] ){
         __m256 g_avx = _mm256_load_ps(g);
         __m256 b_avx = _mm256_load_ps(b);
 
-        __m256 r_percentage = _mm256_set1_ps(0.3);
+        /*__m256 r_percentage = _mm256_set1_ps(0.3);
         __m256 g_percentage = _mm256_set1_ps(0.58);
-        __m256 b_percentage = _mm256_set1_ps(0.11);
+        __m256 b_percentage = _mm256_set1_ps(0.11);*/
+        
+        __m256 to_gray_percentage = _mm256_set1_ps(0.33);
 
-        r_avx = _mm256_mul_ps(r_avx, r_percentage);
+        /*r_avx = _mm256_mul_ps(r_avx, r_percentage);
         g_avx = _mm256_mul_ps(g_avx, g_percentage);
-        b_avx = _mm256_mul_ps(b_avx, b_percentage);
+        b_avx = _mm256_mul_ps(b_avx, b_percentage);*/
 
         gray_avx = _mm256_add_ps(r_avx, g_avx);
         gray_avx = _mm256_add_ps(gray_avx, b_avx);
+        gray_avx = _mm256_mul_ps(gray_avx, to_gray_percentage);
 
-        unsigned char gray_avx_c = gray_avx[0];
-        printf("gray_avx_c: %d \n", gray_avx_c);
-        
-        unsigned char gray = image_data_in[pixel_index]*0.3+image_data_in[pixel_index+1]*0.58+image_data_in[pixel_index+2]*0.11;
-        printf("gray: %d\n",gray );
+        //unsigned char gray_avx_c[8];
 
+        /*for(int i=0; i<8; i++){
+            memset(image_data_out+(pixel_index*24)+i*3,  gray_avx[i], 3);
+        }*/
+        memset(image_data_out+(pixel_index*24),  gray_avx[0], 3);
+        memset(image_data_out+(pixel_index*24)+3,  gray_avx[1], 3);
+        memset(image_data_out+(pixel_index*24)+6,  gray_avx[2], 3);
+        memset(image_data_out+(pixel_index*24)+9,  gray_avx[3], 3);
+        memset(image_data_out+(pixel_index*24)+12,  gray_avx[4], 3);
+        memset(image_data_out+(pixel_index*24)+15,  gray_avx[5], 3);
+        memset(image_data_out+(pixel_index*24)+18,  gray_avx[6], 3);
+        memset(image_data_out+(pixel_index*24)+21,  gray_avx[7], 3);    
     }
 
     fwrite(image_data_out, image_size_bytes, 1, fOut);
