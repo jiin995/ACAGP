@@ -65,12 +65,16 @@ int main( int argc, char *argv[] ){
             pixel[0] = image_data_in[readed_bytes];
             pixel[1] = image_data_in[readed_bytes+1];
             pixel[3] = image_data_in[readed_bytes+2];
-            unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
-            memset(pixel, gray, sizeof(pixel));
+            
+            //unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
+            
+            unsigned char gray = (pixel[0] + pixel[1] + pixel[2])*0.33;
 
-            image_data_out[readed_bytes++] = pixel[0];
-            image_data_out[readed_bytes++] = pixel[1];
-            image_data_out[readed_bytes++] = pixel[2];
+            //memset(pixel, gray, sizeof(pixel));
+
+            image_data_out[readed_bytes++] = gray;
+            image_data_out[readed_bytes++] = gray;
+            image_data_out[readed_bytes++] = gray;
 
         }
     }
