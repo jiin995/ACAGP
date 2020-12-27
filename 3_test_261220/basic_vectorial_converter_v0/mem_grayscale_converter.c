@@ -65,7 +65,6 @@ int main( int argc, char *argv[] ){
     }
 
     unsigned int readed_bytes = 0;
-    start = clock();
     /*for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -85,7 +84,8 @@ int main( int argc, char *argv[] ){
     int n_pixels = height*width;
     printf("n_pixels: %d\n", n_pixels);
     printf("n_pixels/8: %d\n", n_pixels/32);
-    
+
+    start = clock();
     for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
     //for(int pixel_index = 0; pixel_index < 2; pixel_index++){
 
@@ -159,12 +159,13 @@ int main( int argc, char *argv[] ){
         
     }
 
-    fwrite(image_data_out, image_size_bytes, 1, fOut);
-
     end = clock();
+
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     printf("Used time %f\n", cpu_time_used);
+
+    fwrite(image_data_out, image_size_bytes, 1, fOut);
 
     fclose(fOut);
     fclose(fIn);

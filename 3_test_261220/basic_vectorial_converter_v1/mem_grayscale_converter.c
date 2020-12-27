@@ -19,8 +19,12 @@
 
 
 int main( int argc, char *argv[] ){
+    /*
     FILE *fIn = fopen("sample_5184×3456.bmp", "rb");
     FILE *fOut = fopen("sample_5184×3456_gray.bmp", "wb");
+    */
+    FILE *fIn = fopen("sample1.bmp", "rb");
+    FILE *fOut = fopen("sample1_gray.bmp", "wb");
 
     clock_t start, end;
     double cpu_time_used;
@@ -65,7 +69,6 @@ int main( int argc, char *argv[] ){
     }
 
     unsigned int readed_bytes = 0;
-    start = clock();
     /*for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -86,6 +89,8 @@ int main( int argc, char *argv[] ){
     printf("n_pixels: %d\n", n_pixels);
     printf("n_pixels/8: %d\n", n_pixels/32);
     
+    start = clock();
+
     for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
     //for(int pixel_index = 0; pixel_index < 2; pixel_index++){
 
@@ -151,6 +156,7 @@ int main( int argc, char *argv[] ){
         /*for(int i=0; i<8; i++){
             memset(image_data_out+(pixel_index*24)+i*3,  gray_avx[i], 3);
         }*/
+
         memset(image_data_out+(pixel_index*24),  gray_avx[0], 3);
         memset(image_data_out+(pixel_index*24)+3,  gray_avx[1], 3);
         memset(image_data_out+(pixel_index*24)+6,  gray_avx[2], 3);
@@ -158,15 +164,17 @@ int main( int argc, char *argv[] ){
         memset(image_data_out+(pixel_index*24)+12,  gray_avx[4], 3);
         memset(image_data_out+(pixel_index*24)+15,  gray_avx[5], 3);
         memset(image_data_out+(pixel_index*24)+18,  gray_avx[6], 3);
-        memset(image_data_out+(pixel_index*24)+21,  gray_avx[7], 3);    
+        memset(image_data_out+(pixel_index*24)+21,  gray_avx[7], 3);  
+        
     }
 
-    fwrite(image_data_out, image_size_bytes, 1, fOut);
-
     end = clock();
+
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     printf("Used time %f\n", cpu_time_used);
+
+    fwrite(image_data_out, image_size_bytes, 1, fOut);
 
     fclose(fOut);
     fclose(fIn);

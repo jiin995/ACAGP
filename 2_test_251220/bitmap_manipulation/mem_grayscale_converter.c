@@ -14,8 +14,12 @@
 #include <time.h>
 
 int main( int argc, char *argv[] ){
+    /*
     FILE *fIn = fopen("sample_5184×3456.bmp", "rb");
     FILE *fOut = fopen("sample_5184×3456_gray.bmp", "wb");
+    */
+    FILE *fIn = fopen("sample1.bmp", "rb");
+    FILE *fOut = fopen("sample1_gray.bmp", "wb");
 
     clock_t start, end;
     double cpu_time_used;
@@ -57,7 +61,9 @@ int main( int argc, char *argv[] ){
     }
 
     unsigned int readed_bytes = 0;
+
     start = clock();
+    
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -70,20 +76,25 @@ int main( int argc, char *argv[] ){
             
             unsigned char gray = (pixel[0] + pixel[1] + pixel[2])*0.33;
 
-            //memset(pixel, gray, sizeof(pixel));
+            //printf("%d:%d\n\n",y,x);
 
+            memset(image_data_out+readed_bytes, gray, 3);
+            readed_bytes += 3;
+
+            /*image_data_out[readed_bytes++] = gray;
             image_data_out[readed_bytes++] = gray;
             image_data_out[readed_bytes++] = gray;
-            image_data_out[readed_bytes++] = gray;
+            */
 
         }
     }
-    fwrite(image_data_out, image_size_bytes, 1, fOut);
-
     end = clock();
+
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     printf("Used time %f\n", cpu_time_used);
+
+    fwrite(image_data_out, image_size_bytes, 1, fOut);
 
     fclose(fOut);
     fclose(fIn);

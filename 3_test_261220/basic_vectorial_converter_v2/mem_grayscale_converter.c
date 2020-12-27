@@ -65,7 +65,6 @@ int main( int argc, char *argv[] ){
     }
 
     unsigned int readed_bytes = 0;
-    start = clock();
     /*for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -86,6 +85,8 @@ int main( int argc, char *argv[] ){
     printf("n_pixels: %d\n", n_pixels);
     printf("n_pixels/32: %d\n", n_pixels/32);
     
+    start = clock();
+
     for(int pixel_index = 0; pixel_index < n_pixels/32; pixel_index++){
     //for(int pixel_index = 0; pixel_index < 1; pixel_index++){
 
@@ -165,9 +166,11 @@ int main( int argc, char *argv[] ){
         gray_avx = _mm256_add_epi8(gray_avx, b_avx);
 
         //unsigned char gray_avx_c[8];
-        unsigned char *red_avx_c = (unsigned char *) &r_avx;
-        unsigned char *green_avx_c = (unsigned char *) &g_avx;
-        unsigned char *blue_avx_c = (unsigned char *) &b_avx;
+        /*
+            unsigned char *red_avx_c = (unsigned char *) &r_avx;
+            unsigned char *green_avx_c = (unsigned char *) &g_avx;
+            unsigned char *blue_avx_c = (unsigned char *) &b_avx;
+        */
         unsigned char *gray_avx_c = (unsigned char *) &gray_avx;
 
 
@@ -192,6 +195,7 @@ int main( int argc, char *argv[] ){
             printf("\n");
             */
         }
+    
         /*
         memset(image_data_out+(pixel_index*24),  gray_avx[0], 3);
         memset(image_data_out+(pixel_index*24)+3,  gray_avx[1], 3);
@@ -201,15 +205,17 @@ int main( int argc, char *argv[] ){
         memset(image_data_out+(pixel_index*24)+15,  gray_avx[5], 3);
         memset(image_data_out+(pixel_index*24)+18,  gray_avx[6], 3);
         memset(image_data_out+(pixel_index*24)+21,  gray_avx[7], 3); 
-        */   
+        */
+          
     }
 
-    fwrite(image_data_out, image_size_bytes, 1, fOut);
-
     end = clock();
+
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
     printf("Used time %f\n", cpu_time_used);
+
+    fwrite(image_data_out, image_size_bytes, 1, fOut);
 
     fclose(fOut);
     fclose(fIn);
