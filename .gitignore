@@ -1,3 +1,9 @@
 *.o
 *_gray.bmp
 mem_grayscale_converter
+
+scalar
+vectorial
+vectorial_1
+vectorial_2
+vectorial_3
