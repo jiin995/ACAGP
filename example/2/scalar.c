@@ -1,99 +1,58 @@
-/**
- * Author: Gabriele Previtera
- * Basic example that works in memory:
- * It takes an image (bitmap format) and creates another in which the colors are a grayscale.
- * In this code the entire image is loaded into memory, then the color conversion formula 
- * is applied and the new pixel is always saved in memory and at the end it is written to a file. 
- * 
- */
-
+/** 
+* Author: Gabriele Previtera
+* Description: simple sum between two float vectors of 32 elements repeated 1000 times.
+* It is just an example to make performance evaluations.
+*/
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
+//Time 
 #include <time.h>
 
+#define V_SIZE 32
+#define N 1000
+
+
 int main( int argc, char *argv[] ){
-    FILE *fIn = fopen("../sample.bmp", "rb");
-    FILE *fOut = fopen("../sample_gray.bmp", "wb");
+
+    float value[V_SIZE] = 
+    {   0.0f,1.0f,2.0f,3.0f,4.0f,5.0f,6.0f,7.0f,
+        8.0f,9.0f,10.0f,11.0f,12.0f,13.0f,14.0f,15.0f,
+        16.0f,17.0f,18.0f,19.0f,20.0f,21.0f,22.0f,23.0f,24.0f,
+        25.0f,26.0f,27.0f,28.0f,29.0f,30.0f,31.0f,
+    };
+    float increment[V_SIZE] = 
+    {   1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,
+        1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f
+    };
+    
+    float temp [V_SIZE];
 
     clock_t start, end;
     double cpu_time_used;
-    
-    if (!fIn || !fOut)
-    {
-        printf("File error.\n");
-        return 0;
-    }
-
-    unsigned char header[54];
-    fread(header, sizeof(unsigned char), 54, fIn);
-    fwrite(header, sizeof(unsigned char), 54, fOut);
-
-    int width = *(int*)&header[18];
-    int height = abs(*(int*)&header[22]);
-    int stride = (width * 3 + 3) & ~3;
-    int padding = stride - width * 3;
-    int image_size_bytes = *(int*)&header[34];
-
-    printf("width: %d (%d)\n", width, width * 3);
-    printf("height: %d\n", height);
-    printf("stride: %d\n", stride);
-    printf("padding: %d\n", padding);
-    printf("image_size_bytes: %d\n", image_size_bytes);
-
-    unsigned char *image_data_in = malloc(sizeof(char)*image_size_bytes);
-    unsigned char *image_data_out = malloc(sizeof(char)*image_size_bytes);
-
-    unsigned char pixel[3];
-    
-    size_t num_read = fread(image_data_in, image_size_bytes, 1, fIn);
-
-    if(num_read < 0){
-        perror("Read Error");
-        free(image_data_in);
-        free(image_data_out);
-        exit(-1);
-    }
-
-    unsigned int readed_bytes = 0;
 
     start = clock();
-    
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            pixel[0] = image_data_in[readed_bytes];
-            pixel[1] = image_data_in[readed_bytes+1];
-            pixel[3] = image_data_in[readed_bytes+2];
-            
-            //unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
-            //unsigned char gray = pixel[0] + pixel[1] + pixel[2];
-            unsigned char gray = (pixel[0] + pixel[1] + pixel[2])*0.33;
 
-            memset(image_data_out+readed_bytes, gray, 3);
-            readed_bytes += 3;
-
-            /*image_data_out[readed_bytes++] = gray;
-            image_data_out[readed_bytes++] = gray;
-            image_data_out[readed_bytes++] = gray;
-            */
-
+    for(int j = 0; j < N; j++){
+        for (int i = 0; i < V_SIZE; i++){
+            temp[i] = value[i] + increment[i];
         }
     }
+
+
     end = clock();
 
+    for (int i = 0; i < V_SIZE/8; i++){
+        printf("temp = value + 1 is:\n %.2f %.2f %.2f %.2f %.2f %.2f %.2f %.2f\n",
+            temp[8*i], temp[1+8*i], temp[2+8*i], temp[3+8*i],
+            temp[4+8*i], temp[5+8*i], temp[6+8*i], temp[7+8*i]);
+    }
+
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Used time %.10f\n", cpu_time_used);
 
-    printf("Used time %f\n", cpu_time_used);
-
-    fwrite(image_data_out, image_size_bytes, 1, fOut);
-
-    fclose(fOut);
-    fclose(fIn);
-
-    free(image_data_in);
-    free(image_data_out);
-    
     return 0;
 }
+

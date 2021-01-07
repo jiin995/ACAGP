@@ -1,26 +1,29 @@
-MAIN_FILENAME_1 = scalar.c
-MAIN_FILENAME_2 = vectorial_1.c
-MAIN_FILENAME_3 = vectorial_2.c
-MAIN_FILENAME_4 = vectorial_3.c
+MAIN_FILENAME_1 = vectorial.c
+MAIN_FILENAME_2 = scalar.c
 
-OUTPUT_NAME_1 = scalar
-OUTPUT_NAME_2 = vectorial_1
-OUTPUT_NAME_3 = vectorial_2
-OUTPUT_NAME_4 = vectorial_3
+OBJ_NAME_1 = vectorial.o
+OBJ_NAME_2 = scalar.o
+
+OUTPUT_NAME_1 = vectorial
+OUTPUT_NAME_2 = scalar
 
 CC = gcc
 STD = c11
 
 DEBUG_OPT = 
 
-OPTIMIZATION_OPT = 
+OPTIMIZATION_OPT = -O0
 
+#all: compile
+#	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) $(OBJ_NAME_1) -o $(OUTPUT_NAME_1) 
+#	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) $(OBJ_NAME_2) -o $(OUTPUT_NAME_2) 
 all:
-	$(CC) $(DEBUG_OPT) -march=native -o $(OUTPUT_NAME_1) $(MAIN_FILENAME_1)
-	$(CC) $(DEBUG_OPT) -march=native -o $(OUTPUT_NAME_2) $(MAIN_FILENAME_2)
-	$(CC) $(DEBUG_OPT) -march=native -o $(OUTPUT_NAME_3) $(MAIN_FILENAME_3)
-	$(CC) $(DEBUG_OPT) -march=native -o $(OUTPUT_NAME_4) $(MAIN_FILENAME_4)
+	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) -o $(OUTPUT_NAME_1) $(MAIN_FILENAME_1)
+	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) -o $(OUTPUT_NAME_2) $(MAIN_FILENAME_2)
+
+#compile: $(MAIN_FILENAME)
+#	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) -o $(OBJ_NAME_1) -c $(MAIN_FILENAME_1)
+#	$(CC) -march=native $(DEBUG_OPT) $(OPTIMIZATION_OPT ) -std=$(STD) -o $(OBJ_NAME_2) -c $(MAIN_FILENAME_2)
 
 clean:
-	rm $(OUTPUT_NAME_1)
-	rm $(OUTPUT_NAME_2)
+	rm $(OBJ_NAME_1) $(OUTPUT_NAME_1) $(OBJ_NAME_2) $(OUTPUT_NAME_2)
