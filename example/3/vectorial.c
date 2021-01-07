@@ -20,11 +20,6 @@
 
 #define V_MAX_SIZE 65536
 
-void print_vect (float vet[V_MAX_SIZE], int dim, char *label);
-void init_vector(float vet[V_MAX_SIZE], int dim);
-void parse_opt(int argc, char *argv[] );
-
-
 int debug_print = 0;
 int size = V_MAX_SIZE;
 
@@ -44,7 +39,6 @@ int main( int argc, char *argv[] ){
     __m256i sum_mask = _mm256_setr_epi32(-1, 0, -1, 0, -1, 0, -1, 0);
     __m256i sub_mask = _mm256_setr_epi32(0, -1, 0, -1, 0, -1, 0, -1);
     
-
     //init rand seed
     srand((unsigned) time(&t));
 
