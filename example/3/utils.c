@@ -24,7 +24,7 @@ void print_vect (float vet[], int dim, char *label){
 void parse_opt(int argc, char *argv[] ){
     int opt = 0;
 
-    while ((opt = getopt(argc, argv, "ds:")) != -1) {
+    while ((opt = getopt(argc, argv, "ds:h")) != -1) {
         switch(opt) {
             case 'd':
                 debug_print = 1;
@@ -32,7 +32,17 @@ void parse_opt(int argc, char *argv[] ){
             case 's':
                 size = atoi(optarg);
             break;
+            case 'h':
+                print_usage();
+                exit(0);
+            break;
         }
-
     }
+}
+
+void print_usage(){
+    printf("Usage: ./name [-options]\n");
+    printf("\t-d: print debug info, such as matrix\n");
+    printf("\t-s value: limit matrix size to value instead of max value\n");
+    printf("\n");
 }
