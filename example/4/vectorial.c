@@ -106,6 +106,7 @@ void version1( int* mat1, int* mat2, int* result, int size){
             __m256i sumA = _mm256_setzero_si256();
 
             for (int k = 0; k < MAX_SIZE; k++) {
+                __m256i bc_mat1 = _mm256_set1_epi32(mat1[i * size + k]);;
                 __m256i vecA_mat2 = _mm256_loadu_si256((__m256i*)&mat2[k * size + j]);
                 __m256i prodA = _mm256_mullo_epi32(bc_mat1, vecA_mat2);
                 sumA = _mm256_add_epi32(sumA, prodA);
@@ -139,7 +140,7 @@ void version2( int* mat1, int* mat2, int* result, int size){
                 sumA = _mm256_add_epi32(sumA, prodA);
                 sumB = _mm256_add_epi32(sumB, prodB);
             }
-
+            
             _mm256_storeu_si256((__m256i*)&result[i * size + j], sumA);
             _mm256_storeu_si256((__m256i*)&result[i *size + j + 8], sumB);
         }
