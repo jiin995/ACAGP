@@ -67,9 +67,9 @@ int main( int argc, char *argv[] ){
             pixel[1] = image_data_in[readed_bytes+1];
             pixel[2] = image_data_in[readed_bytes+2];
             
-            //unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
+            unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
             //unsigned char gray = pixel[0] + pixel[1] + pixel[2];
-            unsigned char gray = (pixel[0] + pixel[1] + pixel[2])*0.33;
+            //unsigned char gray = (pixel[0] + pixel[1] + pixel[2])*0.33;
 
             memset(image_data_out+readed_bytes, gray, 3);
             readed_bytes += 3;
@@ -85,7 +85,7 @@ int main( int argc, char *argv[] ){
 
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("Used time %f\n", cpu_time_used);
+    printf("Used time %f s\n", cpu_time_used);
 
     fwrite(image_data_out, image_size_bytes, 1, fOut);
 

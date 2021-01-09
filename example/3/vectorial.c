@@ -90,7 +90,7 @@ int main( int argc, char *argv[] ){
     }
 
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Used time %.10f\n", cpu_time_used);
+    printf("Used time %.10f s\n", cpu_time_used);
     
     return 0;
 }
