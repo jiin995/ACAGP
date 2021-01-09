@@ -14,7 +14,7 @@
 
 #include "utils.h"
 
-#define MAX_SIZE 65536
+#define MAX_SIZE 1024
 
 int debug_print = 0;
 int size = MAX_SIZE;
@@ -53,10 +53,10 @@ int main( int argc, char *argv[] ){
 
     start = clock();
 
-    for(int i=0; i<MAX_SIZE; i++){
-        for(int j=0; j<MAX_SIZE; j++){
+    for(int i=0; i<size; i++){
+        for(int j=0; j<size; j++){
             c[i][j] = 0;
-            for(int k=0; k<MAX_SIZE; k++){
+            for(int k=0; k<size; k++){
                 c[i][j] += a[i][k] * b[k][j];	
             }
         }
@@ -66,7 +66,7 @@ int main( int argc, char *argv[] ){
     
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("Used time %f\n", cpu_time_used);
+    printf("Used time %f s\n", cpu_time_used);
 
     if(debug_print){
         print_matrix((int *) c, size, "C");

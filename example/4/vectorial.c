@@ -1,6 +1,9 @@
 /**
  * Author: Gabriele Previtera
- * https://codereview.stackexchange.com/questions/177616/avx-simd-in-matrix-multiplication
+ * Description:
+ *      Multiplication between square matrices using AVX
+ * Code extracted from: 
+ *      https://codereview.stackexchange.com/questions/177616/avx-simd-in-matrix-multiplication
  *
  */
 
@@ -19,7 +22,7 @@
 
 int debug_print = 0;
 int size = MAX_SIZE;
-int version = 0;
+int version = 1;
 
 void version4( int* mat1, int* mat2, int* result, int size);
 void version3( int* mat1, int* mat2, int* result, int size);
@@ -38,7 +41,7 @@ int main( int argc, char *argv[] ){
 
     void (*alg) ( int*, int* , int* , int);
 
-    //init rand seed
+    //Init rand seed
     srand((unsigned) time(&t));
 
     //Parse options
@@ -75,6 +78,7 @@ int main( int argc, char *argv[] ){
         break;
     }
 
+    //Performing multiplication with the selected algorithm
     start = clock();
 
     alg((int *) a, (int *) b, (int *) c, size);
@@ -83,7 +87,7 @@ int main( int argc, char *argv[] ){
 
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
 
-    printf("Used time %f\n", cpu_time_used);
+    printf("Used time %f s\n", cpu_time_used);
 
     if(debug_print){
         print_matrix((int *) c, size, "c");
@@ -93,12 +97,14 @@ int main( int argc, char *argv[] ){
 }
 
 /**
-* Prende un elemento per volta della prima matrice e lo moltiplica per tutta la riga con cui 
-* dovrebbe essere moltiplicata della seconda matrice.
-* Ad ogni iterazione fa delle somme parziali con la riga calcolata precentemente e quando si è scorsa tutta la prima riga della prima 
-* matrice allora nelle somme parziali ci sarà la riga della matrice risultato
+*
+*   Calculate the product row by column between matrices, using AVX.
+*   With loop k, it calculates 8 values of the result matrix, multiplying each value of the i-th row 
+*   of the first matrix with 8 values of column j of the second matrix. These calculated values are added 
+*   to an accumulator and at the end of the iteration of the cycle with index k, 8 values of the result 
+*   matrix are calculated
+*
 */
-//void version1 (int mat1[MAX_SIZE][MAX_SIZE], int mat2[MAX_SIZE][MAX_SIZE], int result[MAX_SIZE][MAX_SIZE], int size){
 void version1( int* mat1, int* mat2, int* result, int size){
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j += 8) {
@@ -118,12 +124,12 @@ void version1( int* mat1, int* mat2, int* result, int size){
 }
 
 /**
- * Uguale alla versione  uno solo che se la matrice è più grande, cerca di caricare l'elemento
- * della prima matrice meno volte.
- * Divide la riga della seconda matrice in due vettori
+ * 
+ *  Similar to version 1, with the difference that it multiplies the value of the first matrix with 16 
+ *  values of the second matrix.
+ *  This reduces the likelihood of having cache misses and therefore better performance with large arrays
+ * 
  */
-
-//void version2 (int mat1[MAX_SIZE][MAX_SIZE], int mat2[MAX_SIZE][MAX_SIZE], int result[MAX_SIZE][MAX_SIZE]){
 void version2( int* mat1, int* mat2, int* result, int size){
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j += 16) {
@@ -148,25 +154,27 @@ void version2( int* mat1, int* mat2, int* result, int size){
 }
 
 /**
- * Uguale alla versione 2 solo che dividendo la matrice in blocchi si riesce a sfruttare meglio la cache
+ * 
+ *  To better exploit the cache in the case of large arrays, the matrix is divided into blocks and then
+ *  the version 2 algorithm is applied
  * 
  */
 void version3( int* mat1, int* mat2, int* result, int size){
 
-    size_t jb = (512u < size) ? 512u : size; //numero di colonne della blocco
+    size_t jb = (512u < size) ? 512u : size; 
     size_t kb = (24u  < size) ? 24u : size;
 
-    for (size_t jj = 0; jj < size; jj += jb) //Divisione della matrice, prende 512 colonne per volta
+    for (size_t jj = 0; jj < size; jj += jb) 
     {
         for (size_t kk = 0; kk < size; kk += kb)
         {
             for (size_t i = 0; i < size; i += 1) {
                 for (size_t j = jj; j < jj + jb; j += 16) {
                     __m256i sumA_1, sumB_1;
-                    if (kk == 0) { // se è la prima iterazione del cliclo 2 inizializzo i registri
+                    if (kk == 0) { 
                         sumA_1 = sumB_1 = _mm256_setzero_si256();
                     }
-                    else {//altrimenti carico le somme parziali
+                    else {
                         sumA_1 = _mm256_load_si256((__m256i*)&result[i * size + j]);
                         sumB_1 = _mm256_load_si256((__m256i*)&result[i * size + j + 8]);
                     }
