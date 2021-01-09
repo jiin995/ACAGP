@@ -5,6 +5,10 @@
  * In this code the entire image is loaded into memory, then the color conversion formula 
  * is applied and the new pixel is always saved in memory and at the end it is written to a file. 
  * 
+ * This version use Intel AVX and use 
+ *     
+ * gray = 0.3 * R + 0.59 * G + 0.11 * B
+ *
  */
 
 #include <stdio.h>
@@ -12,7 +16,18 @@
 #include <string.h>
 #include <time.h>
 
+//AVX
+#include <immintrin.h> 
+#include <x86intrin.h> 
+
+__m256i mask;
+
+unsigned char *image_data_in __attribute__((aligned(32)));
+unsigned char *image_data_out __attribute__((aligned(32)));
+
+
 int main( int argc, char *argv[] ){
+
     FILE *fIn = fopen("../sample.bmp", "rb");
     FILE *fOut = fopen("../sample_gray.bmp", "wb");
 
@@ -41,10 +56,10 @@ int main( int argc, char *argv[] ){
     printf("padding: %d\n", padding);
     printf("image_size_bytes: %d\n", image_size_bytes);
 
-    unsigned char *image_data_in = malloc(sizeof(char)*image_size_bytes);
-    unsigned char *image_data_out = malloc(sizeof(char)*image_size_bytes);
+    image_data_in   = malloc(sizeof(char)*image_size_bytes);
+    image_data_out  = malloc(sizeof(char)*image_size_bytes);
 
-    unsigned char pixel[3];
+    unsigned char pixel[3] __attribute__((aligned(32)));
     
     size_t num_read = fread(image_data_in, image_size_bytes, 1, fIn);
 
@@ -57,30 +72,41 @@ int main( int argc, char *argv[] ){
 
     unsigned int readed_bytes = 0;
 
+    int n_pixels = height*width;
+    printf("n_pixels: %d\n", n_pixels);
+    printf("n_pixels/8: %d\n", n_pixels/32);
+
+    __m256 divider = _mm256_set1_ps(0.33);
+
+    mask = _mm256_setr_epi32(-1, 0, 0, -1, 0, 0, -1, 0);
+
     start = clock();
-    
-    for (int y = 0; y < height; ++y)
-    {
-        for (int x = 0; x < width; ++x)
-        {
-            pixel[0] = image_data_in[readed_bytes];
-            pixel[1] = image_data_in[readed_bytes+1];
-            pixel[2] = image_data_in[readed_bytes+2];
-            
-            //unsigned char gray = pixel[0] * 0.3 + pixel[1] * 0.58 + pixel[2] * 0.11;
-            //unsigned char gray = pixel[0] + pixel[1] + pixel[2];
-            unsigned char gray = (pixel[0] + pixel[1] + pixel[2]);
 
-            memset(image_data_out+readed_bytes, gray, 3);
-            readed_bytes += 3;
+    for(int pixel_index = 0; pixel_index < n_pixels/3 ; pixel_index++){
+        
+        __m256 gray_avx =  _mm256_setzero_ps();
 
-            /*image_data_out[readed_bytes++] = gray;
-            image_data_out[readed_bytes++] = gray;
-            image_data_out[readed_bytes++] = gray;
-            */
+        __m256 r_avx = _mm256_maskload_ps(image_data_in+9*pixel_index, mask);
+        __m256 g_avx = _mm256_maskload_ps(image_data_in+9*pixel_index+1, mask);
+        __m256 b_avx = _mm256_maskload_ps(image_data_in+9*pixel_index+2, mask);
 
-        }
+       float *red_avx_c = (float *) &r_avx;      
+       float *green_avx_c = (float*) &g_avx;
+       float *blue_avx_c = (float *) &b_avx;
+
+        gray_avx = _mm256_add_ps(r_avx, g_avx);
+        gray_avx = _mm256_add_ps(gray_avx, b_avx);
+
+        gray_avx = _mm256_mul_ps(gray_avx, divider);
+
+        /*for(int i=0; i<8; i++){
+            memset(image_data_out+(pixel_index*24)+i*3,  gray_avx[i], 3);
+        }*/
+        image_data_out[pixel_index*9] = image_data_out[pixel_index*9 +1] = image_data_out[pixel_index*9 +2] = gray_avx[0]; 
+        image_data_out[pixel_index*9+3] = image_data_out[pixel_index*9 +4] = image_data_out[pixel_index*9 +5] = gray_avx[3]; 
+        image_data_out[pixel_index*9+6] = image_data_out[pixel_index*9 +7] = image_data_out[pixel_index*9 +8] = gray_avx[6]; 
     }
+
     end = clock();
 
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
