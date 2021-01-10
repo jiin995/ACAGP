@@ -13,7 +13,7 @@ STD = c11
 
 DEBUG_OPT = 
 
-OPTIMIZATION_OPT = -O3
+OPTIMIZATION_OPT = -O0
 
 all:
 	$(CC) $(DEBUG_OPT) -march=native -o $(OUTPUT_NAME_1) $(MAIN_FILENAME_1)
@@ -24,3 +24,5 @@ all:
 clean:
 	rm $(OUTPUT_NAME_1)
 	rm $(OUTPUT_NAME_2)
+	rm $(OUTPUT_NAME_3)
+	rm $(OUTPUT_NAME_4)
