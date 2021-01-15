@@ -1,9 +1,10 @@
 /** 
 * Author: Gabriele Previtera
 * Description: 
+* Simple example of fusion multiply add.
 * This code calcule new vector of float multiplying the elements by two and adding 1
-* 
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,6 +12,11 @@
 #include <time.h>
 
 #include "utils.h"
+
+
+// AVX
+#include <immintrin.h> 
+#include <x86intrin.h> 
 
 #define V_MAX_SIZE 65536
 
@@ -25,6 +31,11 @@ int main( int argc, char *argv[] ){
     clock_t start, end;
     double cpu_time_used;
     
+    __m256 temp_avx;
+    
+    __m256 increment = _mm256_set1_ps(1.0);
+    __m256 multiplicand = _mm256_set1_ps(2.0);
+
     //init rand seed
     srand((unsigned) time(&t));
 
@@ -42,9 +53,15 @@ int main( int argc, char *argv[] ){
 
     start = clock();
 
-    for (int i = 0; i < size; i++){
+    for (int i = 0; i < (size/8); i++){
         
-        temp[i] = (value[i]*2)+1;
+        int offset = 8*i;
+
+        temp_avx = _mm256_load_ps(value+offset);
+
+        temp_avx = _mm256_fmadd_ps(temp_avx, multiplicand, increment);
+
+        _mm256_store_ps(temp+offset, temp_avx);
     }
     
     end = clock();

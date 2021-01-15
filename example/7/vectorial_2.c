@@ -7,7 +7,7 @@
  * 
  * This version use Intel AVX and use 
  *     
- * gray = 0.3 * R + 0.59 * G + 0.11 * B
+ * gray =  (R + G + B)/0.33
  *
  */
 
@@ -65,17 +65,17 @@ int main( int argc, char *argv[] ){
 
     int n_pixels = height*width;
     printf("n_pixels: %d\n", n_pixels);
-    printf("n_pixels/8: %d\n", n_pixels/32);
-
+    printf("n_pixels/8: %d\n", n_pixels/8);
+    
     start = clock();
-
-    __m256 r_percentage = _mm256_set1_ps(0.3);
-    __m256 g_percentage = _mm256_set1_ps(0.58);
-    __m256 b_percentage = _mm256_set1_ps(0.11);
+    
     __m256 r_avx, g_avx, b_avx, gray_avx;
+
 
     int pixel_offset ;
     
+    __m256 to_gray_percentage = _mm256_set1_ps(0.33);
+
     for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
 
         pixel_offset = pixel_index*24;
@@ -92,8 +92,10 @@ int main( int argc, char *argv[] ){
         b_avx = _mm256_set_ps(image_data_in[pixel_offset+2], image_data_in[pixel_offset+5], image_data_in[pixel_offset+8],
                                 image_data_in[pixel_offset+11], image_data_in[pixel_offset+14],image_data_in[pixel_offset+17],
                                 image_data_in[pixel_offset+20], image_data_in[pixel_offset+23]);
+        
+        gray_avx =  _mm256_setzero_ps();
         */
-       
+
         float r[8] __attribute__((aligned(32))) = { image_data_in[pixel_offset], image_data_in[pixel_offset+3], image_data_in[pixel_offset+6],
                                 image_data_in[pixel_offset+9], image_data_in[pixel_offset+12],image_data_in[pixel_offset+15],
                                 image_data_in[pixel_offset+18], image_data_in[pixel_offset+21]
@@ -109,18 +111,22 @@ int main( int argc, char *argv[] ){
                                 image_data_in[pixel_offset+20], image_data_in[pixel_offset+23]
         };
         
+         gray_avx =  _mm256_setzero_ps();
 
-        r_avx = _mm256_load_ps(r);
-        g_avx = _mm256_load_ps(g);
-        b_avx = _mm256_load_ps(b);
-
-        r_avx = _mm256_mul_ps(r_avx, r_percentage);
-        g_avx = _mm256_mul_ps(g_avx, g_percentage);
-        b_avx = _mm256_mul_ps(b_avx, b_percentage);
+         r_avx = _mm256_load_ps(r);
+         g_avx = _mm256_load_ps(g);
+         b_avx = _mm256_load_ps(b);
 
         gray_avx = _mm256_add_ps(r_avx, g_avx);
         gray_avx = _mm256_add_ps(gray_avx, b_avx);
+        gray_avx = _mm256_mul_ps(gray_avx, to_gray_percentage);
 
+/*
+        for(int i=0; i<8; i++){
+            memset(image_data_out+(pixel_offset)+i*3,  gray_avx[i], 3);
+        }
+
+*/
         image_data_out[pixel_offset] = image_data_out[pixel_offset+1] = image_data_out[pixel_offset+2] = gray_avx[0];
         image_data_out[pixel_offset+3] = image_data_out[pixel_offset+4] = image_data_out[pixel_offset+5] = gray_avx[1];
         image_data_out[pixel_offset+6] = image_data_out[pixel_offset+7] = image_data_out[pixel_offset+8] = gray_avx[2];
