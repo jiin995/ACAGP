@@ -71,30 +71,31 @@ int main( int argc, char *argv[] ){
     __m256 g_percentage = _mm256_set1_ps(0.58);
     __m256 b_percentage = _mm256_set1_ps(0.11);
     __m256 r_avx, g_avx, b_avx, gray_avx;
+
     __m256i vindex = _mm256_set_epi32(21, 18, 15, 12, 9, 6, 3, 0);
 
     int pixel_offset ;
-    
+
     start = clock();
     
     for(int pixel_index = 0; pixel_index < n_pixels/8; pixel_index++){
 
         pixel_offset = pixel_index*24;
-        
+
         gray_avx =  _mm256_setzero_ps();
 
         r_avx = _mm256_i32gather_ps(image_data_in+pixel_offset, vindex, 1);
         g_avx = _mm256_i32gather_ps(image_data_in+pixel_offset+1, vindex ,1);
         b_avx = _mm256_i32gather_ps(image_data_in+pixel_offset+2, vindex ,1);
 
-        gray_avx = _mm256_fmadd_ps(r_avx, r_percentage, gray_avx);
+        gray_avx = _mm256_mul_ps(r_avx, r_percentage);
         gray_avx = _mm256_fmadd_ps(g_avx, g_percentage, gray_avx);
         gray_avx = _mm256_fmadd_ps(b_avx, b_percentage, gray_avx);
 
         image_data_out[pixel_offset] = image_data_out[pixel_offset+1] = image_data_out[pixel_offset+2] = gray_avx[0];
         image_data_out[pixel_offset+3] = image_data_out[pixel_offset+4] = image_data_out[pixel_offset+5] = gray_avx[1];
         image_data_out[pixel_offset+6] = image_data_out[pixel_offset+7] = image_data_out[pixel_offset+8] = gray_avx[2];
-        image_data_out[pixel_offset+9] = image_data_out[pixel_offset+10] = image_data_out[pixel_offset+10] = gray_avx[3];
+        image_data_out[pixel_offset+9] = image_data_out[pixel_offset+10] = image_data_out[pixel_offset+11] = gray_avx[3];
         image_data_out[pixel_offset+12] = image_data_out[pixel_offset+13] = image_data_out[pixel_offset+14] = gray_avx[4];
         image_data_out[pixel_offset+15] = image_data_out[pixel_offset+16] = image_data_out[pixel_offset+17] = gray_avx[5];
         image_data_out[pixel_offset+18] = image_data_out[pixel_offset+19] = image_data_out[pixel_offset+20] = gray_avx[6];

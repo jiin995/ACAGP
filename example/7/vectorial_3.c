@@ -133,7 +133,7 @@ int main( int argc, char *argv[] ){
         image_data_out[pixel_offset] = image_data_out[pixel_offset+1] = image_data_out[pixel_offset+2] = gray_avx_c[0];
         image_data_out[pixel_offset+3] = image_data_out[pixel_offset+4] = image_data_out[pixel_offset+5] = gray_avx_c[1];
         image_data_out[pixel_offset+6] = image_data_out[pixel_offset+7] = image_data_out[pixel_offset+8] = gray_avx_c[2];
-        image_data_out[pixel_offset+9] = image_data_out[pixel_offset+10] = image_data_out[pixel_offset+10] = gray_avx_c[3];
+        image_data_out[pixel_offset+9] = image_data_out[pixel_offset+10] = image_data_out[pixel_offset+11] = gray_avx_c[3];
         image_data_out[pixel_offset+12] = image_data_out[pixel_offset+13] = image_data_out[pixel_offset+14] = gray_avx_c[4];
         image_data_out[pixel_offset+15] = image_data_out[pixel_offset+16] = image_data_out[pixel_offset+17] = gray_avx_c[5];
         image_data_out[pixel_offset+18] = image_data_out[pixel_offset+19] = image_data_out[pixel_offset+20] = gray_avx_c[6];
