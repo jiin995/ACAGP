@@ -17,7 +17,7 @@ int main( int argc, char *argv[] ){
     FILE *fOut = fopen("../sample_gray.bmp", "wb");
 
     clock_t start, end;
-    double cpu_time_used;
+    long double cpu_time_used;
     
     if (!fIn || !fOut)
     {
@@ -58,7 +58,7 @@ int main( int argc, char *argv[] ){
     unsigned int readed_bytes = 0;
 
     start = clock();
-    
+
     for (int y = 0; y < height; ++y)
     {
         for (int x = 0; x < width; ++x)
@@ -81,10 +81,10 @@ int main( int argc, char *argv[] ){
         }
     }
     end = clock();
+    
+    cpu_time_used = ((long double) (end - start)) / CLOCKS_PER_SEC;
 
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-
-    printf("Used time %f s\n", cpu_time_used);
+    printf("Used time %Lf s\n", cpu_time_used);
 
     fwrite(image_data_out, image_size_bytes, 1, fOut);
 
